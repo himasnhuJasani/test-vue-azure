@@ -2,37 +2,34 @@ trigger:
 - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: ubuntu-latest
 
 variables:
-  registryName: 'vueapp.azurecr.io'
+  registryServer: 'vueapp.azurecr.io'
   imageName: 'my-vue-app'
-  containerAppName: 'https://my-vue-live-app.niceglacier-53108191.eastus.azurecontainerapps.io'
+  containerAppName: 'my-vue-live-app'
   resourceGroup: 'vue-project-rg'
 
 steps:
-# 1. Build and push the Docker Image to Azure Registry
+
 - task: Docker@2
-  displayName: 'Build and Push to ACR'
+  displayName: Build and Push to ACR
   inputs:
     containerRegistry: 'Azure-Docker-Connection'
     repository: '$(imageName)'
-    command: 'buildAndPush'
+    command: buildAndPush
     Dockerfile: '**/Dockerfile'
-    tags: 'latest'
+    tags: |
+      latest
 
-# 2. Add the extension installer, then update the app
 - task: AzureCLI@2
-  displayName: 'Deploy to Azure Container Apps'
+  displayName: Deploy to Azure Container App
   inputs:
     azureSubscription: 'Azure-Cloud-Connection'
-    scriptType: 'bash'
-    scriptLocation: 'inlineScript'
+    scriptType: bash
+    scriptLocation: inlineScript
     inlineScript: |
-      # 💡 Fix: Force add the containerapp extension to the agent runner
       az extension add --name containerapp --upgrade --yes
-      
-      # Update the app image reference
       az containerapp update \
         --name $(containerAppName) \
         --resource-group $(resourceGroup) \

@@ -7,7 +7,7 @@ pool:
 variables:
   registryName: 'vueapp.azurecr.io'
   imageName: 'my-vue-app'
-  containerAppName: 'my-vue-live-app'
+  containerAppName: 'https://my-vue-live-app.niceglacier-53108191.eastus.azurecontainerapps.io'
   resourceGroup: 'vue-project-rg'
 
 steps:
@@ -21,7 +21,7 @@ steps:
     Dockerfile: '**/Dockerfile'
     tags: 'latest'
 
-# 2. Add the extension installer, then update the app specifying the location
+# 2. Add the extension installer, then update the app
 - task: AzureCLI@2
   displayName: 'Deploy to Azure Container Apps'
   inputs:
@@ -29,13 +29,11 @@ steps:
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
-      # 1. Install the containerapp extension
+      # 💡 Fix: Force add the containerapp extension to the agent runner
       az extension add --name containerapp --upgrade --yes
       
-      # 2. Update the container app specifying the exact resource location (eastus)
+      # Update the app image reference
       az containerapp update \
         --name $(containerAppName) \
         --resource-group $(resourceGroup) \
-        --location "eastus" \
         --image $(registryServer)/$(imageName):latest
-

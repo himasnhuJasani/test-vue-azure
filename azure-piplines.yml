@@ -23,14 +23,27 @@ steps:
       latest
 
 - task: AzureCLI@2
-  displayName: Deploy to Azure Container App
+  displayName: Debug Container App
   inputs:
     azureSubscription: 'Azure-Cloud-Connection'
     scriptType: bash
     scriptLocation: inlineScript
     inlineScript: |
       az extension add --name containerapp --upgrade --yes
-      az containerapp update \
-        --name $(containerAppName) \
-        --resource-group $(resourceGroup) \
-        --image $(registryServer)/$(imageName):latest
+
+      echo "==== ACCOUNT ===="
+      az account show
+
+      echo "==== GROUP ===="
+      az group show --name vue-project-rg
+
+      echo "==== RESOURCE ===="
+      az resource list \
+        --resource-group vue-project-rg \
+        --resource-type Microsoft.App/containerApps \
+        -o table
+
+      echo "==== CONTAINER APPS ===="
+      az containerapp list \
+        --resource-group vue-project-rg \
+        -o table

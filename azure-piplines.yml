@@ -21,7 +21,7 @@ steps:
     Dockerfile: '**/Dockerfile'
     tags: 'latest'
 
-# 2. Add the extension installer, then update the app
+# 2. Add the extension installer, then update the app specifying the location
 - task: AzureCLI@2
   displayName: 'Deploy to Azure Container Apps'
   inputs:
@@ -29,11 +29,13 @@ steps:
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
-      # 💡 Fix: Force add the containerapp extension to the agent runner
+      # 1. Install the containerapp extension
       az extension add --name containerapp --upgrade --yes
       
-      # Update the app image reference
+      # 2. Update the container app specifying the exact resource location (eastus)
       az containerapp update \
         --name $(containerAppName) \
         --resource-group $(resourceGroup) \
+        --location "eastus" \
         --image $(registryServer)/$(imageName):latest
+

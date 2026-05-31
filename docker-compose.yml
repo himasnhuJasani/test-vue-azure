@@ -1,0 +1,10 @@
+services:
+  vue-dev:
+    image: node:lts-alpine
+    working_dir: /app
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: sh -c "npm install -g pnpm && pnpm install && pnpm run dev -- --host"

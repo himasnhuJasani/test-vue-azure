@@ -1,0 +1,36 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  # Change these to match your actual Azure names
+  registryName: 'yourRegistryName.azurecr.io'
+  imageName: 'my-vue-app'
+  containerAppName: 'your-container-app-name'
+  resourceGroup: 'your-resource-group-name'
+
+steps:
+# 1. Build the Docker Image and Push it to Azure Registry
+- task: Docker@2
+  displayName: 'Build and Push to ACR'
+  inputs:
+    containerRegistry: 'Your-Azure-Service-Connection'
+    repository: '$(imageName)'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
+    tags: 'latest'
+
+# 2. Deploy the new image to Azure Container Apps
+- task: AzureCLI@2
+  displayName: 'Deploy to Azure Container Apps'
+  inputs:
+    azureSubscription: 'Your-Azure-Service-Connection'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az containerapp update \
+        --name $(containerAppName) \
+        --resource-group $(resourceGroup) \
+        --image $(registryName)/$(imageName):latest
